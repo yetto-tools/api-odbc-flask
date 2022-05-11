@@ -1,6 +1,6 @@
 from decimal import *
 
-def Dump(statement):
+def toJsonDump(statement):
     data = data = [ 
         (round(value,6) if isinstance(value, Decimal) else value 
                 if isinstance(value, int) else str(value).strip() 
@@ -15,7 +15,7 @@ def Dump(statement):
 
 
 
-def toJsonDump(statement):
+def toStringAll(statement):
     data = [tuple(str(item).strip() for item in t) for t in statement.fetchall()]
     columns = [column[0] for column in statement.description]
     res = []
