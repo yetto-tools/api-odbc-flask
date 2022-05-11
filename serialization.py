@@ -1,3 +1,19 @@
+from decimal import *
+
+def Dump(statement):
+    data = data = [ 
+        (round(value,6) if isinstance(value, Decimal) else value 
+                if isinstance(value, int) else str(value).strip() 
+                    for value in row
+        ) for row in statement.fetchall()
+    ]
+    columns = [column[0] for column in statement.description]
+    res = []
+    for row in data:
+        res.append(dict(zip(columns, row )))
+    return res
+
+
 
 def toJsonDump(statement):
     data = [tuple(str(item).strip() for item in t) for t in statement.fetchall()]
