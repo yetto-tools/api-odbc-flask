@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+	<html lang="es">
+	<head>
+		<meta charset="utf-8">	
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+
+		<title>Exportar Especiales 2 (Contado)</title>
+	</head>
+<body class="page" style="background: #FCFCFC;">
+	<div class="container">
+		<div class="row justify-content-center">
+			<h3 id="title">Exportar Especiales</h3>
+		</div>	
+		<div class="row">
+			<div class="col-md-12">
+				<div class="row">
+					<div class="col-md-2"></div>
+						<div class="col-md-8 border mt-3 shadow-lg p-3 mb-5 bg-white rounded">
+							<form class="form-group" >
+	  							<div class="form-group row">
+		    						<label for="fecha_inicial" class="col-sm-2 col-form-label font-weight-bold pr-0">Fecha de Inial</label>
+    								<div class="col-sm-4">
+			      						<input type="date" class="form-control form-control-sm" id="fecha_inicial" value="" autocomplete="off" autofocus>
+    								</div>
+		    						<label for="fecha_final" class="col-sm-2 col-form-label font-weight-bold pr-0 ">Fecha de Pago</label>
+    								<div class="col-sm-4">
+			      						<input type="date" class="form-control form-control-sm" id="fecha_final" value="" autocomplete="off">
+    								</div>
+  								</div>
+  								<div class="form-group row">
+  									<div class="col-sm-12 text-center">
+  										<input type="button" class="btn btn-primary" id="btn_exportar" value="Exportar">
+  									</div>
+  									
+  								</div>
+
+							</form>
+							
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="footer">
+            <p>Erick Rashón © 2020-2022 </p>
+    	</div>
+<script type="text/javascript">
+attachEventToBtnExport()
+
+function attachEventToBtnExport() {
+    const bntExportElement = document.querySelector( '#btn_exportar' )
+    bntExportElement.addEventListener( 'click', exportExcel )
+}
+
+async function exportExcel() {
+    let fecha_inical = document.querySelector('#fecha_inicial');
+    let fecha_final = document.querySelector('#fecha_final');
+    
+
+    
+    	if (fecha_final.value >= fecha_inical.value  &&  (fecha_final.value !== "" || fecha_final.value !== "") ){
+    		let response = await fetch( window.origin+'/api/v1/export'+'?init='+ fecha_inical.value + '&final='+ fecha_final.value);
+    		let blobResponse = await response.blob()
+    		const fileName = 'Especiales 02 ['+fecha_inical.value+" - " +fecha_final.value +"] " + new Date().toISOString().slice(11,19).replace('T', '_').replaceAll(':','');
+
+	    	downloadExcelSilently( blobResponse, fileName );
+	    }
+	    else if(fecha_final.value == "" || fecha_final.value == "") {
+	    	Swal.fire({
+				icon: 'info',
+					title: 'Primero debes llenar los campos de rango de fecha',
+					confirmButtonColor: '#3085d6',
+					text: 'Oops...! \uD83D\uDE14',
+					footer: '<b>Hay un problema con los valores de la fecha.</b>'
+			});
+	    }
+	    else{
+	    	Swal.fire({
+				icon: 'info',
+					title: 'El Rango de Fecha Final debe ser igual o Mayor al dato de Fecha Inicial',
+					confirmButtonColor: '#3085d6',
+					text: 'Oops...! \uD83D\uDE14',
+					footer: '<b>Hay un problema con el rango de fecha.</b>'
+
+			});
+
+	    }
+    
+}
+function downloadExcelSilently( blobExcelFile, filename ) {
+    const url = window.URL.createObjectURL( blobExcelFile );
+    const hiddenAnchor = document.createElement( "a" );
+    hiddenAnchor.style.display = "none";
+    hiddenAnchor.href = url;
+    hiddenAnchor.download = filename;
+    document.body.appendChild( hiddenAnchor );
+    hiddenAnchor.click();
+    window.URL.revokeObjectURL( url );
+}
+		</script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/sweetalert2@11.js') }}">
+</script>
+<style type="text/css"></style>
+</body>
+</html>               
+
