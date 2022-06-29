@@ -6,19 +6,18 @@ from serialization import *
 from flask_cors import CORS
 from datetime import datetime
 from SQLQueries import *
-import os
-import qrcode
-import base64
 from io import BytesIO
-import re
-import xlrd
 from commons import *
-from os import urandom
+import base64
+from os import urandom, path
+import qrcode
+
 
 app = Flask(__name__, instance_relative_config=True, static_url_path='/static')
 app.secret_key = urandom(24)
 app.config["JSON_SORT_KEYS"] = False
 app.config['JSON_AS_ASCII'] = False
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 cors = CORS(app, resources={
             r"/api/*": {"origins": "*"}}, methods=['GET', 'POST'])
@@ -38,8 +37,7 @@ def to_qcode(data):
 
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    return send_from_directory(path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 @app.route('/')
@@ -174,14 +172,9 @@ def test_especiales():
         conn = mysql.connect(auto_commit=False)  # auto_comit defaul is false
         cursor = conn.cursor()
         cursor.execute("SET @@lc_time_names = 'es_GT'; ")
-        result = cursor.execute(FILTRO_ESPECIEALES, date_init, dete_final, credito, date_init, dete_final)
-
+        result = cursor.execute(FILTRO_ESPECIALES2, date_init, dete_final, credito, date_init, dete_final)
         consult = result
-        #res = toStringAll(result)
-
-        # return jsonify({'found': len(res), 'total_dia:': '', 'especiales2_contado': res})
-
-        buffer = data_to_xlsx_and_table(consult)
+        buffer = send_to_xlsx_fix(consult)
         mimetype = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
         return send_file(buffer, mimetype=mimetype)
@@ -201,9 +194,7 @@ def api_export_to_xlsx():
         cursor = conn.cursor()
         cursor.execute("SET @@lc_time_names = 'es_GT'; ")
         result = cursor.execute(ESPECIALES_2_TO_EXCEL, date_init, dete_final, credito)
-
         file = ResposeFileExcel(result.fetchall())
-
     return file
 
 
@@ -226,9 +217,7 @@ def test_send_to_execl():
             result = cursor.execute(ESPECIALES_2_DEFAULT_CROM, date_init, dete_final)
         elif date_init >= dete_final:
             result = cursor.execute(ESPECIALES_2_DEFAULT_CROM, dete_final, date_init)
-
     send_to_xlsx(result)
-
     return "ok"
 
 def ResposeFileExcel(data):
@@ -240,3 +229,8 @@ def ResposeFileExcel(data):
 @app.route('/<int:codigo>', methods=['DELETE'])
 def testing(codigo):
     return jsonify(codigo)
+
+# es cierto que sentarse para hablas
+# las cosas, no siempres resuelve todo
+# pero si no lo hacemos nunca nos 
+# entenderemos
