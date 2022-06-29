@@ -1,3 +1,57 @@
+test = """
+SELECT
+    DAYOFWEEK(fecha) as dia,
+    fecha,
+    qsys_codigo_cliente,
+    IF(
+        qsys_codigo_cliente <> 000001,
+        (
+            SELECT
+                DISTINCT(
+                    TRIM(
+                        REPLACE(
+                            REPLACE(REPLACE(UPPER(nombre), " ", "{}"), "}{", ""),
+                            "{}",
+                            " "
+                        )
+                    )
+                )
+            FROM
+                cxc_cliente
+            WHERE
+                cliente = qsys_codigo_cliente
+        ),
+        TRIM(
+            REPLACE(
+                REPLACE(REPLACE(nombre, " ", "{}"), "}{", ""),
+                "{}",
+                " "
+            )
+        )
+    ) AS Nombre,
+    sum(monto) as Monto,
+    IF(credito, "CREDITO", "CONTADO") AS forma_pago
+FROM
+    inf_pedido pedido
+WHERE
+    '01'
+    AND fecha BETWEEN ?
+    AND ?
+    AND qsys_vendedor = '332'
+    AND credito = ?
+    AND estado <> 9
+GROUP BY
+    fecha,
+    Nombre
+ORDER BY
+    nombre,
+    dia,
+    fecha
+"""
+
+
+
+
 ESPECIALES_2_DEFAULT_CROM = """
             SELECT
             serie,pedido,
