@@ -59,9 +59,8 @@ def send_to_xlsx_fix(data, file_name="Reporte Especiales2 Contado"+ str(datetime
         ]}
 
     temp = []
-    data_processed=[]
-    duplicate_name=[]
-
+    data_processed = []
+    duplicate_name = []
     pos = 0
     index = 0
 
@@ -221,10 +220,15 @@ def send_to_simple_xlsx_fix(data, file_name="Reporte Especiales2 Contado"+ str(d
             elif day_of_week == 7:
                 worksheet.write(duplicate_name.index(name)+1, 8, '='+amount, number_format)
             #worksheet.write(index, 9, customer)
-        worksheet.write_formula('C'+str(index), '=SUM('+COLUMNAS['LUNES']+str(index)+':'+COLUMNAS['SÁBADO']+str(index)+')')
+        worksheet.write_formula('C'+str(index), '=SUM('+COLUMNAS['LUNES']+str(index)+':'+COLUMNAS['SÁBADO']+str(index)+')', number_format)
 
     for DIA in COLUMNAS:
-        worksheet.write_formula(COLUMNAS[DIA]+str(index+2), '=SUM('+COLUMNAS[DIA]+str(1)+':'+COLUMNAS[DIA]+str(index)+")")
+        worksheet.write_formula(COLUMNAS[DIA]+str(index+2), '=SUM('+COLUMNAS[DIA]+str(1)+':'+COLUMNAS[DIA]+str(index)+")", number_format)
+
+    worksheet.write("A1", "NOMBRE",bold)
+    for value in COLUMNAS:
+        worksheet.write(COLUMNAS[value]+str(1), value,bold)
+
 
     worksheet.set_column("A:A", 45)
 
@@ -273,7 +277,7 @@ result = cursor.execute(ESPECIALES_2_TO_EXCEL, '2022-06-20', '2022-06-25',0)
 data = result.fetchall()
 
 
-file = send_to_simple_xlsx_fix(data, headers=['fecha', 'COLUMNAS[DIA]', 'cliente', 'nombre', 'monto', 'forma'])
+file = send_to_simple_xlsx_fix(data)
 
 with open("excel_data2.xlsx", "w+b") as f:
     f.write(file.read())
